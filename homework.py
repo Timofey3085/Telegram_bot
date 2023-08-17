@@ -7,6 +7,7 @@ import sys
 import telegram
 import requests
 from dotenv import load_dotenv
+import exceptions
 
 load_dotenv()
 
@@ -41,24 +42,34 @@ def check_tokens():
 
 def send_message(bot, message):
     """Отправляет сообщение в телеграм."""
-    logging.info('Попытка отправить сообщение.')
-    if message:
-        logging.debug('Сообщение отправлено.')
-        return bot.send_message(chat_id=TELEGRAM_CHAT_ID, text=message)
+    try:
+        bot.send_message(TELEGRAM_CHAT_ID, message)
+        logging.debug('Сообщение отправлено в Telegram')
+    except telegram.TelegramError:
+        logging.error('Не удалось отправить сообщение в Telegram')
 
 
 def get_api_answer(timestamp):
     """Делает запрос эндпоинту API-сервиса."""
+    logging.debug('Отправляем запрос к эндпоинту API-сервиса')
     try:
         response = requests.get(
-            ENDPOINT, headers=HEADERS, params={'from_date': timestamp})
+            ENDPOINT,
+            headers=HEADERS,
+            params={'from_date': timestamp}
+        )
         if response.status_code != HTTPStatus.OK:
-            raise requests.exceptions.HTTPError(
-                (f'Ошибка запроса, статус {response.status_code}'))
-        data = response.json()
-        return data
-    except requests.RequestException as e:
-        logging.error('Ошибка при выполнении запроса:', e)
+            raise exceptions.EndpointError(
+                'Неверные значения токена/времени в запросе.'
+                f'Код ответа API: {response.status_code}'
+            )
+        return response.json()
+
+    except Exception:
+        raise exceptions.EndpointError(
+            f'Эндпоинт {ENDPOINT} недоступен.'
+            f'Код ответа API: {response.status_code}'
+        )
 
 
 def check_response(response):
