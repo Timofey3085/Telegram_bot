@@ -13,10 +13,10 @@ load_dotenv()
 
 
 PRACTICUM_TOKEN = os.getenv('PRACTICUM_TOKEN')
-TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN')
-TELEGRAM_CHAT_ID = os.getenv('TELEGRAM_CHAT_ID')
+TELEGRAM_TOKEN = os.getenv('TOKEN')
+TELEGRAM_CHAT_ID = os.getenv('CHAT_ID')
 
-RETRY_PERIOD = 600
+RETRY_PERIOD = 60
 ENDPOINT = 'https://practicum.yandex.ru/api/user_api/homework_statuses/'
 HEADERS = {'Authorization': f'OAuth {PRACTICUM_TOKEN}'}
 
@@ -99,7 +99,7 @@ def main():
     """Основная логика работы бота."""
     logging.basicConfig(
         filename='main.log',
-        level=logging.INFO,
+        level=logging.DEBUG,
         encoding='utf-8',
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     check_tokens()
