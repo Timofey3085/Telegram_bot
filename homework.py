@@ -106,23 +106,39 @@ def main():
         sys.exit('Программа принудительно остановлена.')
     bot = telegram.Bot(token=TELEGRAM_TOKEN)
     timestamp = int(time.time())
-    current_report = {}
-    prev_report = {}
+    current_report = {
+        'name': '',
+        'messages': ''
+    }
+    prev_report = {
+        'name': '',
+        'messages': ''
+    }
     while True:
         try:
             response = get_api_answer(timestamp)
+            timestamp = (
+                response.get('current_date', timestamp)
+            )
             homeworks = check_response(response)
-            message = parse_status(homeworks[0])
-            if message != current_report:
-                send_message(bot, message)
-                current_report = message
+            if homeworks:
+                homework = homeworks[0]
+                current_report['name'] = homework.get('homework_name')
+                status = parse_status(homework)
+                current_report['messages'] = status
+            else:
+                current_report['messages'] = 'Нет новых статусов'
+                status = 'Нет новых статусов'
+            if current_report != prev_report:
+                send_message(bot=bot, message=status)
+                prev_report = current_report.copy()
             else:
                 logging.debug('Отсутсвует изменение статуса')
         except Exception as error:
             message = f'Сбой в работе программы: {error}'
             logging.error(message)
             if current_report != prev_report:
-                send_message(bot, message)
+                send_message(bot=bot, message=message)
                 prev_report = current_report.copy()
         finally:
             time.sleep(RETRY_PERIOD)
