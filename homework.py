@@ -137,6 +137,7 @@ def main():
         except Exception as error:
             message = f'Сбой в работе программы: {error}'
             logging.error(message)
+            current_report['messages'] = message
             if current_report != prev_report:
                 send_message(bot=bot, message=message)
                 prev_report = current_report.copy()
