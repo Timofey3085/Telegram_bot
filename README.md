@@ -37,5 +37,5 @@ pip install -r requirements.txt
 python homework.py
 ```
 
-Авторы
+Автор
 [Timofey - Razborshchikov](https://github.com/Timofey3085)
